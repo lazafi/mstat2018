@@ -33,6 +33,7 @@ sum(res1$cluster != olives$Region)
 centers <- sapply(1:3, function (x) { colMeans(s[olives$Region==x,]) })
 
 # use the centers to initialize kmeans
+# -> this intriduces apriori structure into the data! ie: 3 clusters
 res2 <- kmeans(s, t(centers))
 
 # missclassified samples
@@ -42,7 +43,7 @@ sum(res2$cluster != olives$Region)
 
 ###Calinski-Harabasz
 chs <- lapply(2:15, function(k) {
-  r <- kmeans(s,k)
+  r <- kmeans(s,k, nstart=10)
   (r$betweenss/(k-1))/(r$tot.withinss/(nrow(s)-k))
 })
 plot(2:15,chs, xlab="k")
@@ -69,6 +70,7 @@ sub_olives <- olives[sample(1:nrow(olives), 100, replace=FALSE),]
 subs <- scale(sub_olives[,cols])
 dist <- dist(subs) 
 sil <- silhouette(sub_olives$Region, dist)
+# shoud have used kmeans with different ks. then compare the avg.silhuette and pick the maximum
 plot(sil)
 
 
@@ -95,6 +97,7 @@ c <- cutree(res, k=3)
 
 res_complete <- hclust(d, method="complete")
 plot(res_complete)
+table(cutree(res_complete, k=3), olives$Region)
 sum(cutree(res_complete, k=3) != olives$Region)
 
 res_single <- hclust(d, method="single")
@@ -111,6 +114,6 @@ sum(cutree(res_average, k=3) != olives$Region)
 ##4
 
 library(mclust)
-mclust_res <- Mclust(s, G = 1:3)
+mclust_res <- Mclust(s, G = 1:10)
 sum(mclust_res$classification != olives$Region)
 plot(mclust_res)
