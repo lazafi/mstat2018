@@ -1,6 +1,5 @@
 #0026842
 
-
 red.data <- read.csv(file="winequality-red.csv", header=TRUE, sep=";")
 str(red.data)
 
@@ -29,25 +28,32 @@ biplot(white.pca, cex=0.8)
 #2
 
 plot(red.pca)
-
 plot(white.pca)
-#data with big SD also visible on the biplots
+# outliers with large SD also visible on the biplots
+
 
 #3
 #proj1 <- scale(red.data,center=white.pca@center,scale=white.pca@scale) %*% white.pca@loadings
 
+# rescale red-wine data with the same center/scale then white
 red.rescaled <- scale(red.data, center=white.pca@center,scale=white.pca@scale)
+#calculate scores
 red.proj <- red.rescaled %*% white.pca@loadings
+#plot biplot and projections
 biplot(white.pca, cex=0.8)
 points(red.proj[,1:2], col="grey")
 
 #4
 
+#filter high quality samples, ommit quality variable
 red.high <- red.data[which(red.data$quality==7 | red.data$quality==8),1:11]
+#calculate pca
 red.high.pca <- PcaHubert(red.high, scale=TRUE)
 summary(red.high.pca)
-red.low <- red.data[which(red.data$quality==2 | red.data$quality==3),1:11]
 
+#filter low quality samples, ommit quality variable
+red.low <- red.data[which(red.data$quality==2 | red.data$quality==3),1:11]
+# calculate scores
 red.low.proj <- scale(red.low, center=red.high.pca@center, scale=red.high.pca@scale) %*% red.high.pca@loadings 
 biplot(red.high.pca)
 points(red.low.proj[,1:2], col="green", pch=19)
@@ -57,15 +63,16 @@ points(red.low.proj[,1:2], col="green", pch=19)
 #5
 plot(red.high.pca)
 
+# use k=3 becouse 3 components cover over 80% variance
 k = 3
 loadings <- red.high.pca@loadings[,1:k]
 red.low.scaled <- scale(red.low, center=red.high.pca@center, scale=red.high.pca@scale)
 scores <- red.low.scaled %*% loadings
 vars <- apply(scores, 2, var)
 sds <- sqrt(apply(scores^2 / vars, 1, sum))
-#apply(red.low.scaled - t(loadings %*% t(scores)),2,dist)
-
-
+library(fields) # for rdist
+ods <- diag(rdist(red.low.scaled, t(loadings %*% t(scores))))
+plot(red.high.pca)
 points(sds, ods, col="red", pch=19)
 
 
