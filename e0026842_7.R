@@ -43,20 +43,28 @@ red.proj <- red.rescaled %*% white.pca@loadings
 biplot(white.pca, cex=0.8)
 points(red.proj[,1:2], col="grey")
 
+#-> plotting inside the biplot not usefull, instad use a simple plot 
+plot(white.pca@scores[,1], white.pca@scores[,2], col="red")
+points(red.proj[,1], red.proj[,2])
+
 #4
 
 #filter high quality samples, ommit quality variable
 red.high <- red.data[which(red.data$quality==7 | red.data$quality==8),1:11]
 #calculate pca
-red.high.pca <- PcaHubert(red.high, scale=TRUE)
+red.high.pca <- PcaHubert(red.high, scale=TRUE, k=2)
 summary(red.high.pca)
 
 #filter low quality samples, ommit quality variable
-red.low <- red.data[which(red.data$quality==2 | red.data$quality==3),1:11]
+red.low <- red.data[which(red.data$quality==3 | red.data$quality==4),1:11]
 # calculate scores
 red.low.proj <- scale(red.low, center=red.high.pca@center, scale=red.high.pca@scale) %*% red.high.pca@loadings 
 biplot(red.high.pca)
 points(red.low.proj[,1:2], col="green", pch=19)
+
+# ->
+plot(red.high.pca@scores[,1], red.high.pca@scores[,2], col="red")
+points(red.low.proj[,1], red.low.proj[,2])
 
 # low quality wines have all variables in the middle range with higher volatile.acidity and density
 
@@ -64,14 +72,29 @@ points(red.low.proj[,1:2], col="green", pch=19)
 plot(red.high.pca)
 
 # use k=3 becouse 3 components cover over 80% variance
-k = 3
+# -> k=3 means od = 0 becouse there is no orthogonal distance
+k = 2
 loadings <- red.high.pca@loadings[,1:k]
 red.low.scaled <- scale(red.low, center=red.high.pca@center, scale=red.high.pca@scale)
 scores <- red.low.scaled %*% loadings
 vars <- apply(scores, 2, var)
+#-> use eigenvalues:
+vars <- red.high.pca@eigenvalues
 sds <- sqrt(apply(scores^2 / vars, 1, sum))
 library(fields) # for rdist
 ods <- diag(rdist(red.low.scaled, t(loadings %*% t(scores))))
+#diag(rdist(red.low.scaled[1,], t(loadings %*% t(scores))[1,]))
+
+#-<
+a <- red.high.pca@eigenvalues
+sd.low <- apply(t(t(scores^2)/a), 1, sum)^(1/2)  #??
+red.low.scaled <- scale(red.low, red.high.pca@center, red.high.pca@scale)
+G <- red.high.pca@loadings
+od.low <- apply(red.low.scaled - scores %*% t(G), 1, vecnorm)
+
+plot(red.high.pca)
+points(sd.low, od.low, col=2)
+
 plot(red.high.pca)
 points(sds, ods, col="red", pch=19)
 
