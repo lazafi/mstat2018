@@ -1,5 +1,8 @@
 # 0026842
 
+library(StatDA)
+library(rrcov)
+
 car.data.raw <- read.csv(file="cardata.csv", header=TRUE, sep=",")
 car.data.proj <- car.data.raw[,-c(1:9,15,16,18)]
 car.data <- na.omit(car.data.proj)
@@ -21,7 +24,6 @@ distanceDiag <- function(data, scores, loadings) {
 
 #1a
 
-library(StatDA)
 car.fa <- pfa(scale(car.data),factors=2,scores="regression")
 summary(car.fa)
 biplot(car.fa$scores[,1:2], car.fa$loadings[,1:2])
