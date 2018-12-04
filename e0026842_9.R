@@ -62,6 +62,12 @@ ods_d <- apply(car.data.diesel.sc - (scores %*% t(car.fa3$loadings)), 1, vecnorm
 points(sds_d, ods_d, col=2)
 
 
+#4
 
-
+car.fa4 <- pfa(scale(car.data),factors=2,scores="regression",rotation = "none")
+library(GPArotation)
+car.fa4.v <- pfa(scale(car.data),factors=2,scores="regression",rotation = "varimax")
+biplot(car.fa4.v$scores[,1:2], car.fa4.v$loadings[,1:2])
+#car.fa4.o <- pfa(scale(car.data),factors=2,scores="regression",rotation = "oblimin")
+#biplot(car.fa4.o$scores[,1:2], car.fa4.o$loadings[,1:2])
 
