@@ -13,14 +13,18 @@ str(car.data)
 distanceDiag <- function(data, scores, loadings) {
   #eigen <- eigen(cormat, only.values = TRUE)
   vars <- apply(scores, 2, var)
-  sds <- apply(t(t(scores^2)/vars[1:2]), 1, sum)^(1/2)  
-  sd.cv <-  sqrt(qchisq(0.975, k))
-  ods <- apply(data - (scores %*% t(loadings)), 1, vecnorm)
+  sds <- sqrt(apply(t(t(scores^2)/vars^2),1, sum))
+  sd.cv <-  sqrt(qchisq(0.975, 2))
+  #ods <- apply(data - (scores %*% t(loadings)), 1, vecnorm)
+  ods <- sqrt(apply((data - scores %*% t(loadings))^2, 1, sum))
   od.cv <- (median(ods^(2/3)) + mad(ods^(2/3)) * qnorm(0.975))^(3/2)
-  plot(sds, ods, xlim=c(min(sds)-0.5,max(sds)+0.5))
+
+  plot(sds, ods)
   abline(v=sd.cv)
   abline(h=sd.cv)
 }
+
+
 
 #1a
 
@@ -31,7 +35,7 @@ biplot(car.fa$scores[,1:2], car.fa$loadings[,1:2])
 
 #1b
 distanceDiag(scale(car.data), car.fa$scores, car.fa$loadings)
-
+DiagPlot(scale(car.data), car.fa$scores, car.fa$loadings)
 #2
 cov <- covMcd(car.data, cor=TRUE)
 
