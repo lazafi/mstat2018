@@ -12,8 +12,13 @@ str(car.data)
 # function for plotting diagnostic plots
 distanceDiag <- function(data, scores, loadings) {
   #eigen <- eigen(cormat, only.values = TRUE)
-  vars <- apply(scores, 2, var)
-  sds <- sqrt(apply(t(t(scores^2)/vars^2),1, sum))
+  #vars <- apply(scores, 2, var)
+  #->
+  vars <- diag(loadings %*% t(loadings))
+  #sds <- sqrt(apply(t(t(scores^2)/vars^2),1, sum))
+  #SD <- sqrt(apply(scores^2 / ))
+  # -> sds are mahalanobis distances
+  sds <- mahalanobis(scores,rep(0,ncol(scores)),cov(scores))
   sd.cv <-  sqrt(qchisq(0.975, 2))
   #ods <- apply(data - (scores %*% t(loadings)), 1, vecnorm)
   ods <- sqrt(apply((data - scores %*% t(loadings))^2, 1, sum))
@@ -21,7 +26,7 @@ distanceDiag <- function(data, scores, loadings) {
 
   plot(sds, ods)
   abline(v=sd.cv)
-  abline(h=sd.cv)
+  abline(h=od.cv)
 }
 
 
@@ -31,15 +36,15 @@ distanceDiag <- function(data, scores, loadings) {
 car.fa <- pfa(scale(car.data),factors=2,scores="regression")
 summary(car.fa)
 biplot(car.fa$scores[,1:2], car.fa$loadings[,1:2])
-
+#-> uniquenesses: big u indicates there is not much info in the factors
 
 #1b
 distanceDiag(scale(car.data), car.fa$scores, car.fa$loadings)
-DiagPlot(scale(car.data), car.fa$scores, car.fa$loadings)
+#DiagPlot(scale(car.data), car.fa$scores, car.fa$loadings)
 #2
-cov <- covMcd(car.data, cor=TRUE)
-
-car.fa2 <- pfa(scale(car.data), factors=2, scores="regression", covmat=cov$cor)
+cov <- covMcd(car.data)
+#<- scale with robust
+car.fa2 <- pfa(scale(car.data,cov$center,sqrt(diag(cov$cov))), factors=2, scores="regression", covmat=cov)
 biplot(car.fa2$scores[,1:2], car.fa2$loadings[,1:2])
 distanceDiag(scale(car.data), car.fa2$scores, car.fa2$loadings)
 
@@ -74,4 +79,8 @@ car.fa4.v <- pfa(scale(car.data),factors=2,scores="regression",rotation = "varim
 biplot(car.fa4.v$scores[,1:2], car.fa4.v$loadings[,1:2])
 #car.fa4.o <- pfa(scale(car.data),factors=2,scores="regression",rotation = "oblimin")
 #biplot(car.fa4.o$scores[,1:2], car.fa4.o$loadings[,1:2])
+
+#c ->
+# see solution
+
 
