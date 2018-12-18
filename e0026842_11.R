@@ -39,7 +39,7 @@ cancorR <- function (df, i, j, cov = "cov", cor = "cor") {
   g <- invsqrt(r22) %*% r21 %*% solve(r11) %*% r12 %*% invsqrt(r22)
   
   cancor <- sqrt(eigen(f)$values)
-  print(cancor)
+  #print(cancor)
   Astar <- invsqrt(r11) %*% eigen(f)$vectors
   Bstar <- invsqrt(r22) %*% eigen(g)$vectors
 
