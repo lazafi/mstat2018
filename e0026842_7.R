@@ -88,6 +88,8 @@ ods <- diag(rdist(red.low.scaled, t(loadings %*% t(scores))))
 #-<
 a <- red.high.pca@eigenvalues
 sd.low <- apply(t(t(scores^2)/a), 1, sum)^(1/2)  #??
+######SD.rhigh <- sqrt(apply(t(t(rhigh.pca@scores[,1:k]^2)/sdev.rhigh[1:k]^2),1, sum))
+
 red.low.scaled <- scale(red.low, red.high.pca@center, red.high.pca@scale)
 G <- red.high.pca@loadings
 od.low <- apply(red.low.scaled - scores %*% t(G), 1, vecnorm)
