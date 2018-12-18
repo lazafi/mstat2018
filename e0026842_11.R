@@ -39,7 +39,7 @@ cancorR <- function (df, i, j, cov = "cov", cor = "cor") {
   g <- invsqrt(r22) %*% r21 %*% solve(r11) %*% r12 %*% invsqrt(r22)
   
   cancor <- sqrt(eigen(f)$values)
-  
+  print(cancor)
   Astar <- invsqrt(r11) %*% eigen(f)$vectors
   Bstar <- invsqrt(r22) %*% eigen(g)$vectors
 
@@ -77,8 +77,9 @@ text(ccaR$phi[,1], ccaR$eta[,1], labels = rownames(ccaR$data), col=covcor$raw.we
 #d
 
 library(ccaPP)
-cca <- CCAgrid(fitness.data.raw[,i], fitness.data.raw[,j], k = 2, method="M")
-#ccaR <- cancorR(fitness.data.raw, i, j, cov=covcor$cov, cor=covcor$cor)
+#cca <- CCAgrid(fitness.data.raw[,i], fitness.data.raw[,j], k = 2, method="M")
+#cca <- cancorR(fitness.data.raw, i, j, cov=covMcd(fitness.data.raw, cor = TRUE)$cov, cor=covMcd(fitness.data.raw, cor = TRUE)$cor)
+cca <- cancorR(fitness.data.raw, i, j)
 #cca <- cancor(fitness.data.raw[,i], fitness.data.raw[,j])
 #phi <- as.matrix(fitness.data.raw[,i]) %*% cca$xcoef
 #eta <- as.matrix(fitness.data.raw[,i]) %*% cca$ycoef
